@@ -13,7 +13,8 @@ var Config Configuration
 type Configuration struct {
 	Server ServerConfig
 	// Db contains db connection configuration.
-	Db DBconfig //nolint:stylecheck
+	Db        DBconfig //nolint:stylecheck
+	JWTConfig JWTConfig
 }
 
 type DBconfig struct {
@@ -46,4 +47,10 @@ func Read() {
 		err = fmt.Errorf("could not read config: %w", err)
 		dreamerr.LogFatalError(err.Error())
 	}
+}
+
+type JWTConfig struct {
+	SecretKey       string
+	TokenExpiration int64
+	// Add other JWT-specific configuration options as needed
 }
