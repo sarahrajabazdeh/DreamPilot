@@ -65,7 +65,12 @@ func NewPostgresDB() (*PostgresDB, error) {
 	}
 	sqlDB.SetMaxOpenConns(config.Config.Db.MaxOpenConns)
 
+	if err := MigrateDatabase(db); err != nil {
+		return nil, fmt.Errorf("failed to apply migrations: %w", err)
+	}
+
 	return &PostgresDB{Gorm: db}, nil
+
 }
 
 var ErrNotFound = fmt.Errorf("record not found")
