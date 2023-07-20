@@ -2,6 +2,7 @@
 package auth
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -28,4 +29,32 @@ func (j *JWT) Generate(userID string) (string, error) {
 	}
 
 	return tokenString, nil
+}
+
+func (j *JWT) Authenticate(tokenString string) (string, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		// Validate the signing method used in the token
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("invalid signing method")
+		}
+
+		// Return the secret key used for signing the token
+		return []byte(j.jwtConfig.SecretKey), nil
+	})
+
+	if err != nil {
+		return "", err
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok || !token.Valid {
+		return "", fmt.Errorf("invalid token")
+	}
+
+	userID, ok := claims["user_id"].(string)
+	if !ok {
+		return "", fmt.Errorf("invalid token claims")
+	}
+
+	return userID, nil
 }
