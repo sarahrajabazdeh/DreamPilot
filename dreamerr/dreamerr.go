@@ -23,34 +23,34 @@ func CheckDbError(err error) {
 	}
 }
 
-type TodoError struct {
+type DreamError struct {
 	message    string
 	status     int // HTTP status codes as registered with IANA.
 	stackTrace []string
 }
 
 // Error returns error message.
-func (e TodoError) Error() string {
+func (e DreamError) Error() string {
 	return e.message
 }
 
 // Status returns HTTP status code as registered with IANA.
-func (e TodoError) Status() int {
+func (e DreamError) Status() int {
 	return e.status
 }
 
-var ErrBadSyntax = &TodoError{message: "ERR_BAD_SYNTAX", status: http.StatusBadRequest}
-var ErrServerError = &TodoError{message: "ERR_INTERNAL_SERVER_ERROR", status: http.StatusInternalServerError}
-var ErrDatabaseError = &TodoError{message: "ERR_INTERNAL_SERVER_ERROR_DATABASE", status: http.StatusInternalServerError}
+var ErrBadSyntax = &DreamError{message: "ERR_BAD_SYNTAX", status: http.StatusBadRequest}
+var ErrServerError = &DreamError{message: "ERR_INTERNAL_SERVER_ERROR", status: http.StatusInternalServerError}
+var ErrDatabaseError = &DreamError{message: "ERR_INTERNAL_SERVER_ERROR_DATABASE", status: http.StatusInternalServerError}
 
 // ErrExpiredToken is raised when the request contains an expired jwt.
-var ErrExpiredToken = &TodoError{message: "ERR_TOKEN_EXPIRED", status: http.StatusUnauthorized}
+var ErrExpiredToken = &DreamError{message: "ERR_TOKEN_EXPIRED", status: http.StatusUnauthorized}
 
 // ErrExpiredRefreshToken is raised when the token is expired also for refresh.
-var ErrExpiredRefreshToken = &TodoError{message: "ERR_REFRESH_EXPIRED", status: http.StatusForbidden}
+var ErrExpiredRefreshToken = &DreamError{message: "ERR_REFRESH_EXPIRED", status: http.StatusForbidden}
 
 // AddStackTraceItem appends a stack trace message to an HGErr.
-func (e *TodoError) AddStackTraceItem(item string) {
+func (e *DreamError) AddStackTraceItem(item string) {
 	e.stackTrace = append(e.stackTrace, item)
 }
 
@@ -63,7 +63,7 @@ func PropagateError(err error, skips int) error {
 		return nil
 	}
 
-	appErr, ok := err.(*TodoError)
+	appErr, ok := err.(*DreamError)
 	if !ok {
 		appErr = ErrServerError
 	}
@@ -92,7 +92,7 @@ func LogFatalError(message string) {
 }
 
 // PrintStackTrace returns a multiline string containing the stack trace representation, starting from the last element.
-func (e TodoError) PrintStackTrace() string {
+func (e DreamError) PrintStackTrace() string {
 	res := fmt.Sprintf("%s:", e.message)
 	for i := len(e.stackTrace) - 1; i >= 0; i-- {
 		res = fmt.Sprintf("%s\n\t%s", res, e.stackTrace[i])
