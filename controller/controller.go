@@ -10,6 +10,7 @@ import (
 
 type ControllerInterface interface {
 	PrivateHandler(http.ResponseWriter, *http.Request)
+	UserInterface
 }
 
 type HttpController struct {

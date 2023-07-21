@@ -7,6 +7,7 @@ import (
 // package that contains all the business logic
 
 type DataserviceInterface interface {
+	UserServiceInterface
 }
 
 type Dataservice struct {

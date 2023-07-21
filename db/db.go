@@ -16,6 +16,7 @@ import (
 
 // Database interface
 type Database interface {
+	UserDbInterface
 	GormDB() *gorm.DB
 }
 
