@@ -1,16 +1,18 @@
 package controller
 
 import (
+	"encoding/json"
 	"net/http"
-	"strconv"
 
+	"github.com/gofrs/uuid"
 	"github.com/gorilla/mux"
-	"github.com/sarahrajabazdeh/DreamPilot/dreamerr"
+	"github.com/sarahrajabazdeh/DreamPilot/model"
 )
 
 type UserInterface interface {
 	GetAllUsers(http.ResponseWriter, *http.Request)
 	DeleteUser(w http.ResponseWriter, r *http.Request)
+	UpdateUser(w http.ResponseWriter, r *http.Request)
 }
 
 func (ctrl *HttpController) GetAllUsers(w http.ResponseWriter, r *http.Request) {
@@ -20,12 +22,48 @@ func (ctrl *HttpController) GetAllUsers(w http.ResponseWriter, r *http.Request) 
 
 func (ctrl *HttpController) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	id, err := strconv.Atoi(params["id"])
+	idStr := params["id"]
 
-	// error in case of id is not a number
+	id, err := uuid.FromString(idStr)
 	if err != nil {
-		dreamerr.ThrowError(dreamerr.ErrBadSyntax)
+		http.Error(w, "Invalid user ID", http.StatusBadRequest)
+		return
 	}
+
 	ctrl.DS.DeleteUser(id)
 
+	w.WriteHeader(http.StatusOK)
+}
+
+type UserUpdate struct {
+	ID       uuid.UUID `json:"id" validate:"required"`
+	Username string    `json:"username" validate:"required"`
+	Password string    `json:"password" validate:"required"`
+	Email    string    `json:"email" validate:"required"`
+}
+
+func (ctrl *HttpController) UpdateUser(w http.ResponseWriter, r *http.Request) {
+	var userreq UserUpdate
+
+	// Parse the request body into a UserUpdate struct.
+	err := json.NewDecoder(r.Body).Decode(&userreq)
+	if err != nil {
+		http.Error(w, "Failed to parse request body", http.StatusBadRequest)
+		return
+	}
+
+	user := model.User{
+		ID:       userreq.ID,
+		Username: userreq.Username,
+		Password: userreq.Password,
+		Email:    userreq.Email,
+	}
+
+	ctrl.DS.UpdateUser(userreq.ID, user)
+	if err != nil {
+		http.Error(w, "Failed to update user", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }
