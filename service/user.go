@@ -1,10 +1,14 @@
 package service
 
-import "github.com/sarahrajabazdeh/DreamPilot/model"
+import (
+	"github.com/gofrs/uuid"
+	"github.com/sarahrajabazdeh/DreamPilot/model"
+)
 
 type UserServiceInterface interface {
 	GetAllUsers() ([]model.User, error)
-	DeleteUser(id int)
+	DeleteUser(id uuid.UUID)
+	UpdateUser(id uuid.UUID, user model.User)
 }
 
 func (ds *Dataservice) GetAllUsers() ([]model.User, error) {
@@ -15,7 +19,12 @@ func (ds *Dataservice) GetAllUsers() ([]model.User, error) {
 	return notes, nil
 }
 
-func (ds *Dataservice) DeleteUser(id int) {
+func (ds *Dataservice) DeleteUser(id uuid.UUID) {
 	ds.DB.DeleteUser(id)
+
+}
+
+func (ds *Dataservice) UpdateUser(id uuid.UUID, user model.User) {
+	ds.DB.UpdateUser(id, user)
 
 }
