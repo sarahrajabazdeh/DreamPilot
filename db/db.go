@@ -42,7 +42,7 @@ func NewPostgresDB() (*PostgresDB, error) {
 	)
 
 	gormConfig := gorm.Config{
-		DisableForeignKeyConstraintWhenMigrating: true,
+		DisableForeignKeyConstraintWhenMigrating: false,
 		Logger:                                   newLogger,
 	}
 
