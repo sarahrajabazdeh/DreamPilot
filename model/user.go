@@ -3,7 +3,7 @@ package model
 import (
 	"time"
 
-	uuid "github.com/jackc/pgtype/ext/gofrs-uuid"
+	uuid "github.com/gofrs/uuid"
 )
 
 type User struct {
