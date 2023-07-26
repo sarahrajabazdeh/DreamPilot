@@ -13,8 +13,12 @@ type UserInterface interface {
 	GetAllUsers(http.ResponseWriter, *http.Request)
 	DeleteUser(w http.ResponseWriter, r *http.Request)
 	UpdateUser(w http.ResponseWriter, r *http.Request)
+	CreateUser(w http.ResponseWriter, r *http.Request)
 }
 
+func NoContentResponse(w http.ResponseWriter) {
+	w.WriteHeader(http.StatusNoContent)
+}
 func (ctrl *HttpController) GetAllUsers(w http.ResponseWriter, r *http.Request) {
 	notes, err := ctrl.DS.GetAllUsers()
 	encodeDataResponse(r, w, notes, err)
@@ -53,7 +57,6 @@ func (ctrl *HttpController) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user := model.User{
-		ID:       userreq.ID,
 		Username: userreq.Username,
 		Password: userreq.Password,
 		Email:    userreq.Email,
@@ -66,4 +69,30 @@ func (ctrl *HttpController) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
+}
+
+type createuserbody struct {
+	Username string `json:"name" maxLength:"255" validate:"required,max=255" example:"sara"`
+	Password string `json:"surname" maxLength:"255" validate:"required,max=255" example:"RJB"`
+	Email    string `json:"email"`
+}
+
+func (ctrl *HttpController) CreateUser(w http.ResponseWriter, r *http.Request) {
+	var body createuserbody
+	// Parse the request body into a UserUpdate struct.
+	err := json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
+		http.Error(w, "Failed to parse request body", http.StatusBadRequest)
+		return
+	}
+	user := model.User{
+		Username: body.Username,
+		Password: body.Password,
+		Email:    body.Email,
+	}
+
+	ctrl.DS.CreateUser(user)
+
+	NoContentResponse(w)
+
 }
