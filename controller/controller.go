@@ -11,6 +11,7 @@ import (
 type ControllerInterface interface {
 	PrivateHandler(http.ResponseWriter, *http.Request)
 	UserInterface
+	GoalsController
 }
 
 type HttpController struct {

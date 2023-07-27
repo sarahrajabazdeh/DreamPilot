@@ -4,19 +4,18 @@ import (
 	"github.com/sarahrajabazdeh/DreamPilot/db"
 )
 
-// package that contains all the business logic
-
 type DataserviceInterface interface {
 	UserServiceInterface
+	GoalServiceInterface
 }
 
-type Dataservice struct {
+type service struct {
 	DB db.Database
 }
 
 // Init initialize the dgs and return it
 func NewService(db db.Database) DataserviceInterface {
-	return &Dataservice{
+	return &service{
 		DB: db,
 	}
 }

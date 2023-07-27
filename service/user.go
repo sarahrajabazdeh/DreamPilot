@@ -12,7 +12,7 @@ type UserServiceInterface interface {
 	CreateUser(user model.User)
 }
 
-func (ds *Dataservice) GetAllUsers() ([]model.User, error) {
+func (ds *service) GetAllUsers() ([]model.User, error) {
 	notes, err := ds.DB.GetAllUsers()
 	if err != nil {
 		return nil, handleError(err)
@@ -20,16 +20,16 @@ func (ds *Dataservice) GetAllUsers() ([]model.User, error) {
 	return notes, nil
 }
 
-func (ds *Dataservice) DeleteUser(id uuid.UUID) {
+func (ds *service) DeleteUser(id uuid.UUID) {
 	ds.DB.DeleteUser(id)
 
 }
 
-func (ds *Dataservice) UpdateUser(id uuid.UUID, user model.User) {
+func (ds *service) UpdateUser(id uuid.UUID, user model.User) {
 	ds.DB.UpdateUser(id, user)
 
 }
 
-func (ds *Dataservice) CreateUser(user model.User) {
+func (ds *service) CreateUser(user model.User) {
 	ds.DB.CreateUser(user)
 }

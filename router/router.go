@@ -18,6 +18,7 @@ func PublicRoute(r *chi.Mux, ctrl controller.ControllerInterface) *chi.Mux {
 		w.Write([]byte("Pong"))
 	})
 	r.Get("/getallusers", ctrl.GetAllUsers)
+	r.Get("/getallgoals", ctrl.GetAllGoals)
 
 	return r
 }
