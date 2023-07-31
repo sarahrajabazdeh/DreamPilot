@@ -8,6 +8,7 @@ import (
 type GoalServiceInterface interface {
 	GetAllGoals() ([]model.Goal, error)
 	DeleteGoal(id uuid.UUID) error
+	UpdateGoal(id uuid.UUID, goal model.Goal) error
 }
 
 func (ds *service) GetAllGoals() ([]model.Goal, error) {
@@ -20,5 +21,10 @@ func (ds *service) GetAllGoals() ([]model.Goal, error) {
 
 func (ds *service) DeleteGoal(id uuid.UUID) error {
 	err := ds.DB.DeleteGoal(id)
+	return handleError(err)
+}
+
+func (ds *service) UpdateGoal(id uuid.UUID, goal model.Goal) error {
+	err := ds.DB.UpdateGoal(id, goal)
 	return handleError(err)
 }

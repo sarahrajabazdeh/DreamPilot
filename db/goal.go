@@ -7,6 +7,7 @@ import (
 
 type GoalDbInterface interface {
 	GetAllGoals() ([]model.Goal, error)
+	UpdateGoal(id uuid.UUID, goal model.Goal) error
 	DeleteGoal(id uuid.UUID) error
 }
 
@@ -18,5 +19,10 @@ func (p *PostgresDB) GetAllGoals() ([]model.Goal, error) {
 
 func (p *PostgresDB) DeleteGoal(id uuid.UUID) error {
 	err := p.Gorm.Where("id = ?", id).Delete(&model.Goal{}).Error
+	return handleError(err)
+}
+
+func (p *PostgresDB) UpdateGoal(id uuid.UUID, goal model.Goal) error {
+	err := p.Gorm.Model(&model.Goal{}).Where("id = ?", id).Updates(&goal).Error
 	return handleError(err)
 }
