@@ -19,6 +19,11 @@ func PublicRoute(r *chi.Mux, ctrl controller.ControllerInterface) *chi.Mux {
 	})
 	r.Get("/getallusers", ctrl.GetAllUsers)
 	r.Get("/getallgoals", ctrl.GetAllGoals)
+	r.Delete("/deleteuser/{id}", ctrl.DeleteUser)
+	r.Put("/updateuser/{id}", ctrl.UpdateUser)
+	r.Post("/createuser", ctrl.CreateUser)
+	r.Get("/deletegoal/{id}", ctrl.DeleteGoal)
+	r.Put("/updategoal/{id}", ctrl.UpdateGoal)
 
 	return r
 }
