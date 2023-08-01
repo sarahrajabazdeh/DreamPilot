@@ -14,6 +14,7 @@ type GoalsController interface {
 	GetAllGoals(w http.ResponseWriter, r *http.Request)
 	DeleteGoal(w http.ResponseWriter, r *http.Request)
 	UpdateGoal(w http.ResponseWriter, r *http.Request)
+	CreateGoal(w http.ResponseWriter, r *http.Request)
 }
 
 func (ctrl *HttpController) GetAllGoals(w http.ResponseWriter, r *http.Request) {
@@ -67,4 +68,22 @@ func (ctrl *HttpController) UpdateGoal(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusOK)
+}
+
+func (ctrl *HttpController) CreateGoal(w http.ResponseWriter, r *http.Request) {
+	var goalreq goalreq
+	err := json.NewDecoder(r.Body).Decode(&goalreq)
+	if err != nil {
+		http.Error(w, "failed to parse the body", http.StatusBadRequest)
+		return
+	}
+	goal := model.Goal{
+		ID:          goalreq.ID,
+		Title:       goalreq.Title,
+		Description: goalreq.Description,
+		Deadline:    goalreq.Deadline,
+		Priority:    goalreq.Priority,
+		Status:      goalreq.Status,
+	}
+	ctrl.DS.CreateGoal(goal)
 }
