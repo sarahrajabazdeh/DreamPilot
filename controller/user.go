@@ -8,6 +8,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/gorilla/mux"
 	"github.com/sarahrajabazdeh/DreamPilot/model"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type UserInterface interface {
@@ -78,6 +79,14 @@ type createuserbody struct {
 	Email    string `json:"email"`
 }
 
+func hashAndSalt(password string) (string, error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+	return string(hashedPassword), nil
+}
+
 func (ctrl *HttpController) CreateUser(w http.ResponseWriter, r *http.Request) {
 	var body createuserbody
 	// Parse the request body into a UserUpdate struct.
@@ -94,10 +103,14 @@ func (ctrl *HttpController) CreateUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
+	hashedPassword, err := hashAndSalt(body.Password)
+	if err != nil {
+		http.Error(w, "Failed to hash password", http.StatusInternalServerError)
+		return
+	}
 	user := model.User{
 		Username: body.Username,
-		Password: body.Password,
+		Password: hashedPassword,
 		Email:    body.Email,
 	}
 

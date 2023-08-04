@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/go-playground/validator"
 	"github.com/gofrs/uuid"
 	"github.com/gorilla/mux"
 	"github.com/sarahrajabazdeh/DreamPilot/model"
@@ -77,6 +78,13 @@ func (ctrl *HttpController) CreateGoal(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "failed to parse the body", http.StatusBadRequest)
 		return
 	}
+	validate := validator.New()
+
+	// Validate the request
+	if err := validate.Struct(goalreq); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 	goal := model.Goal{
 		ID:          goalreq.ID,
 		Title:       goalreq.Title,
@@ -85,5 +93,8 @@ func (ctrl *HttpController) CreateGoal(w http.ResponseWriter, r *http.Request) {
 		Priority:    goalreq.Priority,
 		Status:      goalreq.Status,
 	}
-	ctrl.DS.CreateGoal(goal)
+	if err := ctrl.DS.CreateGoal(goal); err != nil {
+		http.Error(w, "Failed to create user", http.StatusInternalServerError)
+		return
+	}
 }
