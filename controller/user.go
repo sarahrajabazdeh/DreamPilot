@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/go-playground/validator"
 	"github.com/gofrs/uuid"
 	"github.com/gorilla/mux"
 	"github.com/sarahrajabazdeh/DreamPilot/model"
@@ -85,13 +86,25 @@ func (ctrl *HttpController) CreateUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to parse request body", http.StatusBadRequest)
 		return
 	}
+
+	validate := validator.New()
+
+	// Validate the request
+	if err := validate.Struct(body); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
 	user := model.User{
 		Username: body.Username,
 		Password: body.Password,
 		Email:    body.Email,
 	}
 
-	ctrl.DS.CreateUser(user)
+	if err := ctrl.DS.CreateUser(user); err != nil {
+		http.Error(w, "Failed to create user", http.StatusInternalServerError)
+		return
+	}
 
 	NoContentResponse(w)
 

@@ -9,7 +9,7 @@ type UserServiceInterface interface {
 	GetAllUsers() ([]model.User, error)
 	DeleteUser(id uuid.UUID)
 	UpdateUser(id uuid.UUID, user model.User)
-	CreateUser(user model.User)
+	CreateUser(user model.User) error
 }
 
 func (ds *service) GetAllUsers() ([]model.User, error) {
@@ -30,6 +30,10 @@ func (ds *service) UpdateUser(id uuid.UUID, user model.User) {
 
 }
 
-func (ds *service) CreateUser(user model.User) {
-	ds.DB.CreateUser(user)
+func (ds *service) CreateUser(user model.User) error {
+	err := ds.DB.CreateUser(user)
+	if err != nil {
+		return handleError(err)
+	}
+	return nil
 }
