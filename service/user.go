@@ -7,8 +7,8 @@ import (
 
 type UserServiceInterface interface {
 	GetAllUsers() ([]model.User, error)
-	DeleteUser(id uuid.UUID)
-	UpdateUser(id uuid.UUID, user model.User)
+	DeleteUser(id uuid.UUID) error
+	UpdateUser(id uuid.UUID, user model.User) error
 	CreateUser(user model.User) error
 }
 
@@ -20,13 +20,21 @@ func (ds *service) GetAllUsers() ([]model.User, error) {
 	return notes, nil
 }
 
-func (ds *service) DeleteUser(id uuid.UUID) {
-	ds.DB.DeleteUser(id)
+func (ds *service) DeleteUser(id uuid.UUID) error {
+	err := ds.DB.DeleteUser(id)
+	if err != nil {
+		return handleError(err)
+	}
+	return nil
 
 }
 
-func (ds *service) UpdateUser(id uuid.UUID, user model.User) {
-	ds.DB.UpdateUser(id, user)
+func (ds *service) UpdateUser(id uuid.UUID, user model.User) error {
+	err := ds.DB.UpdateUser(id, user)
+	if err != nil {
+		return handleError(err)
+	}
+	return nil
 
 }
 

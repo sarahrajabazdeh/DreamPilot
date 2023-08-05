@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/go-chi/chi"
 	"github.com/go-playground/validator"
 	"github.com/gofrs/uuid"
-	"github.com/gorilla/mux"
 	"github.com/sarahrajabazdeh/DreamPilot/model"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -22,19 +22,13 @@ func NoContentResponse(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusNoContent)
 }
 func (ctrl *HttpController) GetAllUsers(w http.ResponseWriter, r *http.Request) {
-	notes, err := ctrl.DS.GetAllUsers()
-	encodeDataResponse(r, w, notes, err)
+	users, err := ctrl.DS.GetAllUsers()
+	encodeDataResponse(r, w, users, err)
 }
 
 func (ctrl *HttpController) DeleteUser(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	idStr := params["id"]
-
-	id, err := uuid.FromString(idStr)
-	if err != nil {
-		http.Error(w, "Invalid user ID", http.StatusBadRequest)
-		return
-	}
+	idStr := chi.URLParam(r, "id")
+	id, _ := uuid.FromString(idStr)
 
 	ctrl.DS.DeleteUser(id)
 
@@ -64,7 +58,7 @@ func (ctrl *HttpController) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		Email:    userreq.Email,
 	}
 
-	ctrl.DS.UpdateUser(userreq.ID, user)
+	err = ctrl.DS.UpdateUser(userreq.ID, user)
 	if err != nil {
 		http.Error(w, "Failed to update user", http.StatusInternalServerError)
 		return
