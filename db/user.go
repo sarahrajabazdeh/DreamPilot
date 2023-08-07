@@ -10,6 +10,7 @@ type UserDbInterface interface {
 	DeleteUser(id uuid.UUID) error
 	UpdateUser(id uuid.UUID, user model.User) error
 	CreateUser(user model.User) error
+	GetUserByID(id uuid.UUID) (model.User, error)
 }
 
 func (p *PostgresDB) GetAllUsers() ([]model.User, error) {
@@ -32,4 +33,10 @@ func (p *PostgresDB) UpdateUser(id uuid.UUID, user model.User) error {
 func (p *PostgresDB) CreateUser(user model.User) error {
 	err := p.Gorm.Create(&user).Error
 	return handleError(err)
+}
+
+func (p *PostgresDB) GetUserByID(id uuid.UUID) (model.User, error) {
+	var user model.User
+	err := p.Gorm.Where("id = ?", id).First(&user).Error
+	return user, handleError(err)
 }

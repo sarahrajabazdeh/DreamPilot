@@ -16,6 +16,7 @@ type GoalsController interface {
 	DeleteGoal(w http.ResponseWriter, r *http.Request)
 	UpdateGoal(w http.ResponseWriter, r *http.Request)
 	CreateGoal(w http.ResponseWriter, r *http.Request)
+	GetGoalByID(w http.ResponseWriter, r *http.Request)
 }
 
 func (ctrl *HttpController) GetAllGoals(w http.ResponseWriter, r *http.Request) {
@@ -91,4 +92,11 @@ func (ctrl *HttpController) CreateGoal(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to create user", http.StatusInternalServerError)
 		return
 	}
+}
+func (ctrl *HttpController) GetGoalByID(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "id")
+	id, _ := uuid.FromString(idStr)
+	goal, err := ctrl.DS.GetGoalByID(id)
+	encodeDataResponse(r, w, goal, err)
+
 }

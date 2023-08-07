@@ -16,6 +16,7 @@ type UserInterface interface {
 	DeleteUser(w http.ResponseWriter, r *http.Request)
 	UpdateUser(w http.ResponseWriter, r *http.Request)
 	CreateUser(w http.ResponseWriter, r *http.Request)
+	GetUserByID(w http.ResponseWriter, r *http.Request)
 }
 
 func NoContentResponse(w http.ResponseWriter) {
@@ -114,5 +115,12 @@ func (ctrl *HttpController) CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	NoContentResponse(w)
+
+}
+func (ctrl *HttpController) GetUserByID(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "id")
+	id, _ := uuid.FromString(idStr)
+	user, err := ctrl.DS.GetUserByID(id)
+	encodeDataResponse(r, w, user, err)
 
 }
