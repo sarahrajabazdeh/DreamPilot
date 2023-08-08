@@ -11,6 +11,7 @@ type GoalServiceInterface interface {
 	UpdateGoal(id uuid.UUID, goal model.Goal) error
 	CreateGoal(goal model.Goal) error
 	GetGoalByID(id uuid.UUID) (model.Goal, error)
+	GetUserGoalsByStatus(userID uuid.UUID, status string) ([]model.Goal, error)
 }
 
 func (ds *service) GetAllGoals() ([]model.Goal, error) {
@@ -38,4 +39,12 @@ func (ds *service) CreateGoal(goal model.Goal) error {
 func (ds *service) GetGoalByID(id uuid.UUID) (model.Goal, error) {
 	goal, err := ds.DB.GetGoalByID(id)
 	return goal, handleError(err)
+}
+func (ds *service) GetUserGoalsByStatus(userID uuid.UUID, status string) ([]model.Goal, error) {
+	goals, err := ds.DB.GetGoalsByUserAndStatus(userID, status)
+	if err != nil {
+		return nil, err
+	}
+
+	return goals, nil
 }

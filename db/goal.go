@@ -11,6 +11,7 @@ type GoalDbInterface interface {
 	DeleteGoal(id uuid.UUID) error
 	CreateGoal(goal model.Goal) error
 	GetGoalByID(id uuid.UUID) (model.Goal, error)
+	GetGoalsByUserAndStatus(userID uuid.UUID, status string) ([]model.Goal, error)
 }
 
 func (p *PostgresDB) GetAllGoals() ([]model.Goal, error) {
@@ -37,4 +38,14 @@ func (p *PostgresDB) GetGoalByID(id uuid.UUID) (model.Goal, error) {
 	var goal model.Goal
 	err := p.Gorm.Where("id = ?", id).First(&goal).Error
 	return goal, handleError(err)
+}
+func (p *PostgresDB) GetGoalsByUserAndStatus(userID uuid.UUID, status string) ([]model.Goal, error) {
+	var goals []model.Goal
+
+	err := p.Gorm.Where("user_id = ? AND status = ?", userID, status).Find(&goals).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return goals, nil
 }

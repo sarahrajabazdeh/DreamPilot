@@ -17,6 +17,7 @@ type GoalsController interface {
 	UpdateGoal(w http.ResponseWriter, r *http.Request)
 	CreateGoal(w http.ResponseWriter, r *http.Request)
 	GetGoalByID(w http.ResponseWriter, r *http.Request)
+	GetUserGoalsByStatus(w http.ResponseWriter, r *http.Request)
 }
 
 func (ctrl *HttpController) GetAllGoals(w http.ResponseWriter, r *http.Request) {
@@ -99,4 +100,22 @@ func (ctrl *HttpController) GetGoalByID(w http.ResponseWriter, r *http.Request) 
 	goal, err := ctrl.DS.GetGoalByID(id)
 	encodeDataResponse(r, w, goal, err)
 
+}
+func (ctrl *HttpController) GetUserGoalsByStatus(w http.ResponseWriter, r *http.Request) {
+	userIDStr := chi.URLParam(r, "userId")
+	status := chi.URLParam(r, "status")
+
+	userID, err := uuid.FromString(userIDStr)
+	if err != nil {
+		http.Error(w, "invalid user ID", http.StatusBadRequest)
+		return
+	}
+
+	goals, err := ctrl.DS.GetUserGoalsByStatus(userID, status)
+	if err != nil {
+		http.Error(w, "failed to retrieve user goals", http.StatusInternalServerError)
+		return
+	}
+
+	encodeDataResponse(r, w, goals, nil)
 }
