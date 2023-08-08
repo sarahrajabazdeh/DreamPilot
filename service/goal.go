@@ -12,6 +12,7 @@ type GoalServiceInterface interface {
 	CreateGoal(goal model.Goal) error
 	GetGoalByID(id uuid.UUID) (model.Goal, error)
 	GetUserGoalsByStatus(userID uuid.UUID, status string) ([]model.Goal, error)
+	MarkTaskCompleted(goalID uuid.UUID, taskIndex int) error
 }
 
 func (ds *service) GetAllGoals() ([]model.Goal, error) {
@@ -47,4 +48,10 @@ func (ds *service) GetUserGoalsByStatus(userID uuid.UUID, status string) ([]mode
 	}
 
 	return goals, nil
+}
+
+func (ds *service) MarkTaskCompleted(goalID uuid.UUID, taskIndex int) error {
+	err := ds.DB.MarkTaskCompleted(goalID, taskIndex)
+	return handleError(err)
+
 }

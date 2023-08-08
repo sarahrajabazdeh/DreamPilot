@@ -12,6 +12,7 @@ type GoalDbInterface interface {
 	CreateGoal(goal model.Goal) error
 	GetGoalByID(id uuid.UUID) (model.Goal, error)
 	GetGoalsByUserAndStatus(userID uuid.UUID, status string) ([]model.Goal, error)
+	MarkTaskCompleted(goalID uuid.UUID, taskIndex int) error
 }
 
 func (p *PostgresDB) GetAllGoals() ([]model.Goal, error) {
@@ -48,4 +49,9 @@ func (p *PostgresDB) GetGoalsByUserAndStatus(userID uuid.UUID, status string) ([
 	}
 
 	return goals, nil
+}
+
+func (p *PostgresDB) MarkTaskCompleted(goalID uuid.UUID, taskIndex int) error {
+	err := p.Gorm.Model(&model.Goal{}).Where("id = ?", goalID).Updates(&model.Goal{Tasks: map[int]bool{taskIndex: true}}).Error
+	return handleError(err)
 }

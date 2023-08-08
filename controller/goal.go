@@ -3,6 +3,7 @@ package controller
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/go-chi/chi"
@@ -18,6 +19,7 @@ type GoalsController interface {
 	CreateGoal(w http.ResponseWriter, r *http.Request)
 	GetGoalByID(w http.ResponseWriter, r *http.Request)
 	GetUserGoalsByStatus(w http.ResponseWriter, r *http.Request)
+	MarkTaskCompleted(w http.ResponseWriter, r *http.Request)
 }
 
 func (ctrl *HttpController) GetAllGoals(w http.ResponseWriter, r *http.Request) {
@@ -118,4 +120,27 @@ func (ctrl *HttpController) GetUserGoalsByStatus(w http.ResponseWriter, r *http.
 	}
 
 	encodeDataResponse(r, w, goals, nil)
+}
+func (ctrl *HttpController) MarkTaskCompleted(w http.ResponseWriter, r *http.Request) {
+	goalIDStr := chi.URLParam(r, "goalID")
+	goalID, err := uuid.FromString(goalIDStr)
+	if err != nil {
+		http.Error(w, "invalid goal ID", http.StatusBadRequest)
+		return
+	}
+
+	taskIndexStr := chi.URLParam(r, "taskIndex")
+	taskIndex, err := strconv.Atoi(taskIndexStr)
+	if err != nil {
+		http.Error(w, "invalid task index", http.StatusBadRequest)
+		return
+	}
+
+	err = ctrl.DS.MarkTaskCompleted(goalID, taskIndex)
+	if err != nil {
+		http.Error(w, "failed to mark task as completed", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }
