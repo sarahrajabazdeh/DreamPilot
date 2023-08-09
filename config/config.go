@@ -13,8 +13,9 @@ var Config Configuration
 type Configuration struct {
 	Server ServerConfig
 	// Db contains db connection configuration.
-	Db        DBconfig //nolint:stylecheck
-	JWTConfig JWTConfig
+	Db          DBconfig
+	JWTConfig   JWTConfig
+	EmailConfig EmailConfig
 }
 
 type DBconfig struct {
@@ -23,8 +24,14 @@ type DBconfig struct {
 	Name         string // database name
 	User         string // database user
 	Password     string // database user password
-	MaxOpenConns int    // max number of open connections
-
+	MaxOpenConns int
+}
+type EmailConfig struct {
+	SMTPServer   string
+	SMTPPort     int
+	SMTPUsername string
+	SMTPPassword string
+	SenderEmail  string
 }
 
 type ServerConfig struct {
