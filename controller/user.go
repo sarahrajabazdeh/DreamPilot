@@ -17,6 +17,7 @@ type UserInterface interface {
 	UpdateUser(w http.ResponseWriter, r *http.Request)
 	CreateUser(w http.ResponseWriter, r *http.Request)
 	GetUserByID(w http.ResponseWriter, r *http.Request)
+	GetUserCompletedGoals(w http.ResponseWriter, r *http.Request)
 }
 
 func NoContentResponse(w http.ResponseWriter) {
@@ -123,4 +124,21 @@ func (ctrl *HttpController) GetUserByID(w http.ResponseWriter, r *http.Request) 
 	user, err := ctrl.DS.GetUserByID(id)
 	encodeDataResponse(r, w, user, err)
 
+}
+
+func (ctrl *HttpController) GetUserCompletedGoals(w http.ResponseWriter, r *http.Request) {
+	userIDStr := chi.URLParam(r, "userID")
+	userID, err := uuid.FromString(userIDStr)
+	if err != nil {
+		http.Error(w, "invalid user ID", http.StatusBadRequest)
+		return
+	}
+
+	goals, err := ctrl.DS.GetUserGoalsByStatus(userID, "completed")
+	if err != nil {
+		http.Error(w, "failed to retrieve user completed goals", http.StatusInternalServerError)
+		return
+	}
+
+	encodeDataResponse(r, w, goals, nil)
 }
