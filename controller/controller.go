@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/sarahrajabazdeh/DreamPilot/auth"
+	"github.com/sarahrajabazdeh/DreamPilot/config"
 	"github.com/sarahrajabazdeh/DreamPilot/service"
 )
 
@@ -15,12 +17,14 @@ type ControllerInterface interface {
 }
 
 type HttpController struct {
-	DS service.DataserviceInterface
+	DS  service.DataserviceInterface
+	jwt *auth.JWT
 }
 
-func NewController(s service.DataserviceInterface) ControllerInterface {
+func NewController(s service.DataserviceInterface, jwtConfig config.JWTConfig) ControllerInterface {
 	return &HttpController{
-		DS: s,
+		DS:  s,
+		jwt: auth.NewJWT(jwtConfig),
 	}
 }
 

@@ -17,7 +17,6 @@ import (
 func main() {
 	log.Println("Starting Go server")
 
-	// read the configuration
 	config.Read()
 
 	jwtConfig := config.Config.JWTConfig
@@ -29,20 +28,17 @@ func main() {
 
 	s := service.NewService(db)
 
-	// Initialize the controller
-	ctrl := controller.NewController(s)
+	ctrl := controller.NewController(s, jwtConfig)
 
 	r := chi.NewRouter()
 	r.Mount("/api", router.SetupRoutes(ctrl))
 
-	// Protected routes will go through the JWT middleware first
 	r.Group(func(r chi.Router) {
 		// These routes require JWT authentication
 		r.Use(middleware.JWTMiddleware(jwtConfig))
 		r.Get("/api/private", ctrl.PrivateHandler)
 	})
 
-	// router.SetupRoutes(r, ctrl)
 	err = http.ListenAndServe(":"+config.Config.Server.Port, cors.AllowAll().Handler(r))
 	if err != nil {
 		log.Println(err)

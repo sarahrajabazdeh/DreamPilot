@@ -7,12 +7,13 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-playground/validator"
 	"github.com/gofrs/uuid"
+	"github.com/sarahrajabazdeh/DreamPilot/dto"
 	"github.com/sarahrajabazdeh/DreamPilot/model"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type UserInterface interface {
-	GetAllUsers(http.ResponseWriter, *http.Request)
+	GetAllUsers(w http.ResponseWriter, r *http.Request)
 	DeleteUser(w http.ResponseWriter, r *http.Request)
 	UpdateUser(w http.ResponseWriter, r *http.Request)
 	CreateUser(w http.ResponseWriter, r *http.Request)
@@ -37,15 +38,8 @@ func (ctrl *HttpController) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-type UserUpdate struct {
-	ID       uuid.UUID `json:"id" validate:"required"`
-	Username string    `json:"username" validate:"required"`
-	Password string    `json:"password" validate:"required"`
-	Email    string    `json:"email" validate:"required"`
-}
-
 func (ctrl *HttpController) UpdateUser(w http.ResponseWriter, r *http.Request) {
-	var userreq UserUpdate
+	var userreq dto.UserUpdate
 
 	// Parse the request body into a UserUpdate struct.
 	err := json.NewDecoder(r.Body).Decode(&userreq)
@@ -69,12 +63,6 @@ func (ctrl *HttpController) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-type createuserbody struct {
-	Username string `json:"name" maxLength:"255" validate:"required,max=255" example:"sara"`
-	Password string `json:"surname" maxLength:"255" validate:"required,max=255" example:"RJB"`
-	Email    string `json:"email"`
-}
-
 func hashAndSalt(password string) (string, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
@@ -84,7 +72,7 @@ func hashAndSalt(password string) (string, error) {
 }
 
 func (ctrl *HttpController) CreateUser(w http.ResponseWriter, r *http.Request) {
-	var body createuserbody
+	var body dto.Createuserbody
 	// Parse the request body into a UserUpdate struct.
 	err := json.NewDecoder(r.Body).Decode(&body)
 	if err != nil {
@@ -125,18 +113,36 @@ func (ctrl *HttpController) GetUserByID(w http.ResponseWriter, r *http.Request) 
 	encodeDataResponse(r, w, user, err)
 
 }
-
 func (ctrl *HttpController) GetUserCompletedGoals(w http.ResponseWriter, r *http.Request) {
-	userIDStr := chi.URLParam(r, "userID")
-	userID, err := uuid.FromString(userIDStr)
-	if err != nil {
-		http.Error(w, "invalid user ID", http.StatusBadRequest)
+	tokenString := r.Header.Get("Authorization")
+	if tokenString == "" {
+		http.Error(w, "Missing authorization token", http.StatusUnauthorized)
 		return
 	}
 
-	goals, err := ctrl.DS.GetUserGoalsByStatus(userID, "completed")
+	userID, err := ctrl.jwt.Authenticate(tokenString)
 	if err != nil {
-		http.Error(w, "failed to retrieve user completed goals", http.StatusInternalServerError)
+		http.Error(w, "Invalid token", http.StatusUnauthorized)
+		return
+	}
+
+	userIDStr := chi.URLParam(r, "userID")
+	urlUserID, err := uuid.FromString(userIDStr)
+	if err != nil {
+		http.Error(w, "Invalid user ID", http.StatusBadRequest)
+		return
+	}
+
+	if userID != urlUserID.String() {
+		http.Error(w, "Unauthorized to access this user's goals", http.StatusForbidden)
+		return
+	}
+
+	status := chi.URLParam(r, "status")
+
+	goals, err := ctrl.DS.GetUserGoalsByStatus(urlUserID, status)
+	if err != nil {
+		http.Error(w, "Failed to retrieve user goals", http.StatusInternalServerError)
 		return
 	}
 
