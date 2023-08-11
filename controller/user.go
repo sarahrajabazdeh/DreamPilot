@@ -24,6 +24,14 @@ type UserInterface interface {
 func NoContentResponse(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusNoContent)
 }
+
+// GetAllUsers retrieves a list of all users.
+// @Summary Get all users
+// @Description Retrieve a list of all users
+// @Tags Users
+// @Produce json
+// @Success 200 {array} model.User
+// @Router /api/getallusers [get]
 func (ctrl *HttpController) GetAllUsers(w http.ResponseWriter, r *http.Request) {
 	users, err := ctrl.DS.GetAllUsers()
 	encodeDataResponse(r, w, users, err)
