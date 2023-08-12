@@ -59,5 +59,4 @@ func Read() {
 type JWTConfig struct {
 	SecretKey       string
 	TokenExpiration int64
-	// Add other JWT-specific configuration options as needed
 }
