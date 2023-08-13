@@ -1,4 +1,22 @@
 definitions:
+  dto.goalreq:
+    properties:
+      deadline:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      priority:
+        type: integer
+      status:
+        type: string
+      title:
+        type: string
+    required:
+    - id
+    - title
+    type: object
   model.Goal:
     properties:
       createdAt:
@@ -48,6 +66,21 @@ definitions:
 info:
   contact: {}
 paths:
+  /api/getallgoals:
+    get:
+      description: Retrieve a list of all golas
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Goal'
+            type: array
+      summary: Get all goals
+      tags:
+      - Golas
   /api/getallusers:
     get:
       description: Retrieve a list of all users
@@ -63,4 +96,37 @@ paths:
       summary: Get all users
       tags:
       - Users
+  /course/edit:
+    put:
+      consumes:
+      - application/json
+      description: edit a  goal.
+      parameters:
+      - description: Info about the goal to be edited
+        in: body
+        name: Body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.goalreq'
+      responses:
+        "200":
+          description: OK
+      summary: Update Goal.
+      tags:
+      - Goal
+  /deletegoal:
+    delete:
+      description: delete an existing goal.
+      parameters:
+      - description: The ID of the goal to delete
+        in: query
+        name: courseid
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+      summary: Delete a goal.
+      tags:
+      - Goal
 swagger: "2.0"

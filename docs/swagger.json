@@ -4,6 +4,29 @@
         "contact": {}
     },
     "paths": {
+        "/api/getallgoals": {
+            "get": {
+                "description": "Retrieve a list of all golas",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Golas"
+                ],
+                "summary": "Get all goals",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Goal"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/getallusers": {
             "get": {
                 "description": "Retrieve a list of all users",
@@ -26,9 +49,87 @@
                     }
                 }
             }
+        },
+        "/course/edit": {
+            "put": {
+                "description": "edit a  goal.",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Goal"
+                ],
+                "summary": "Update Goal.",
+                "parameters": [
+                    {
+                        "description": "Info about the goal to be edited",
+                        "name": "Body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.goalreq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/deletegoal": {
+            "delete": {
+                "description": "delete an existing goal.",
+                "tags": [
+                    "Goal"
+                ],
+                "summary": "Delete a goal.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The ID of the goal to delete",
+                        "name": "courseid",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "dto.goalreq": {
+            "type": "object",
+            "required": [
+                "id",
+                "title"
+            ],
+            "properties": {
+                "deadline": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "priority": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
         "model.Goal": {
             "type": "object",
             "properties": {

@@ -1,6 +1,8 @@
 package dto
 
-import "github.com/gofrs/uuid"
+import (
+	"github.com/gofrs/uuid"
+)
 
 type Createuserbody struct {
 	Username string `json:"name" maxLength:"255" validate:"required,max=255" example:"sara"`
