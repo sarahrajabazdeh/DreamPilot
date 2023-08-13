@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/go-chi/chi"
 	"github.com/go-playground/validator"
 	"github.com/gofrs/uuid"
+	"github.com/sarahrajabazdeh/DreamPilot/dto"
 	"github.com/sarahrajabazdeh/DreamPilot/model"
 )
 
@@ -22,11 +22,25 @@ type GoalsController interface {
 	MarkTaskCompleted(w http.ResponseWriter, r *http.Request)
 }
 
+// GetAllUsers retrieves a list of all goals.
+// @Summary Get all goals
+// @Description Retrieve a list of all golas
+// @Tags Golas
+// @Produce json
+// @Success 200 {array} model.Goal
+// @Router /api/getallgoals [get]
 func (ctrl *HttpController) GetAllGoals(w http.ResponseWriter, r *http.Request) {
 	notes, err := ctrl.DS.GetAllGoals()
 	encodeDataResponse(r, w, notes, err)
 }
 
+// Deletegoal deletes an existing goal.
+// @Summary Delete a goal.
+// @Description  delete an existing goal.
+// @tags Goal
+// @Param goalid query string true "The ID of the goal to delete"
+// @Success 200
+// @Router /deletegoal [delete]
 func (ctrl *HttpController) DeleteGoal(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, _ := uuid.FromString(idStr)
@@ -36,17 +50,16 @@ func (ctrl *HttpController) DeleteGoal(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-type goalreq struct {
-	ID          uuid.UUID `json:"id" validate:"required"`
-	Title       string    `json:"title" validate:"required"`
-	Description string    `json:"description"`
-	Deadline    time.Time `json:"deadline"`
-	Priority    int       `json:"priority"`
-	Status      string    `json:"status"`
-}
-
+// Updategoal update Goal.
+// @Summary Update Goal.
+// @Description edit a  goal.
+// @tags Goal
+// @Accept json
+// @Param Body body dto.goalreq true "Info about the goal to be edited"
+// @Success 200
+// @Router /goal/edit [put]
 func (ctrl *HttpController) UpdateGoal(w http.ResponseWriter, r *http.Request) {
-	var goalreq goalreq
+	var goalreq dto.Goalreq
 	err := json.NewDecoder(r.Body).Decode(&goalreq)
 	if err != nil {
 		http.Error(w, "failed to parse the body", http.StatusBadRequest)
@@ -69,8 +82,17 @@ func (ctrl *HttpController) UpdateGoal(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+// Creategoal creates a new goal.
+// @Summary Create goal.
+// @Description create a new goal.
+// @tags goals
+// @Produce json
+// @Accept json
+// @Param Body body dto.Goalreq true "Info about the goal to be created"
+// @Success 200 {string} string
+// @Router /creategoal [post]
 func (ctrl *HttpController) CreateGoal(w http.ResponseWriter, r *http.Request) {
-	var goalreq goalreq
+	var goalreq dto.Goalreq
 	err := json.NewDecoder(r.Body).Decode(&goalreq)
 	if err != nil {
 		http.Error(w, "failed to parse the body", http.StatusBadRequest)
@@ -96,6 +118,14 @@ func (ctrl *HttpController) CreateGoal(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+// GetgoalByID returns the details of the goal  with the given id.
+// @Summary Returns the details of the goal  with the given id.
+// @tags goal
+// @Produce json
+// @Param id  string true "the id of the goal"
+// @Success 200 {object} model.Goal
+// @Router /goal/{id} [get]
 func (ctrl *HttpController) GetGoalByID(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, _ := uuid.FromString(idStr)
@@ -103,6 +133,7 @@ func (ctrl *HttpController) GetGoalByID(w http.ResponseWriter, r *http.Request) 
 	encodeDataResponse(r, w, goal, err)
 
 }
+
 func (ctrl *HttpController) GetUserGoalsByStatus(w http.ResponseWriter, r *http.Request) {
 	userIDStr := chi.URLParam(r, "userId")
 	status := chi.URLParam(r, "status")
@@ -121,6 +152,7 @@ func (ctrl *HttpController) GetUserGoalsByStatus(w http.ResponseWriter, r *http.
 
 	encodeDataResponse(r, w, goals, nil)
 }
+
 func (ctrl *HttpController) MarkTaskCompleted(w http.ResponseWriter, r *http.Request) {
 	goalIDStr := chi.URLParam(r, "goalID")
 	goalID, err := uuid.FromString(goalIDStr)
