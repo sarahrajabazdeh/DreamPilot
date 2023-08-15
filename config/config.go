@@ -11,8 +11,7 @@ import (
 var Config Configuration
 
 type Configuration struct {
-	Server ServerConfig
-	// Db contains db connection configuration.
+	Server      ServerConfig
 	Db          DBconfig
 	JWTConfig   JWTConfig
 	EmailConfig EmailConfig

@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/gofrs/uuid"
+	"github.com/sarahrajabazdeh/DreamPilot/email"
 	"github.com/sarahrajabazdeh/DreamPilot/model"
 )
 
@@ -52,6 +53,14 @@ func (ds *service) GetUserGoalsByStatus(userID uuid.UUID, status string) ([]mode
 
 func (ds *service) MarkTaskCompleted(goalID uuid.UUID, taskIndex int) error {
 	err := ds.DB.MarkTaskCompleted(goalID, taskIndex)
-	return handleError(err)
+	subject := "Task Completed: "
+	body := "Dear User,\n\nWe are pleased to inform you that the task '"
+	recipientEmail := "r2U7Y@example.com"
 
+	// Send an email notification about the task completion
+	err = email.SendEmail(recipientEmail, subject, body)
+	if err != nil {
+		return handleError(err)
+	}
+	return nil
 }

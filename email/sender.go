@@ -7,7 +7,7 @@ import (
 )
 
 func SendEmail(to, subject, body string) error {
-	emailConfig := config.Config.EmailConfig // Access email configuration from your config package
+	emailConfig := config.Config.EmailConfig
 
 	auth := smtp.PlainAuth("", emailConfig.SMTPUsername, emailConfig.SMTPPassword, emailConfig.SMTPServer)
 
