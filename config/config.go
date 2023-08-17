@@ -11,23 +11,25 @@ import (
 var Config Configuration
 
 type Configuration struct {
-	Server      ServerConfig
-	Db          DBconfig
-	JWTConfig   JWTConfig
+	Server ServerConfig
+	Db     DBconfig
+	// JWTConfig   JWTConfig
 	EmailConfig EmailConfig
+	ShowDocs    bool
+	Token       TokenConfig
 }
 
 type DBconfig struct {
-	Addr         string // database address or hostname
-	Port         string // database port
-	Name         string // database name
-	User         string // database user
-	Password     string // database user password
+	Addr         string
+	Port         string
+	Name         string
+	User         string
+	Password     string
 	MaxOpenConns int
 }
 type EmailConfig struct {
 	SMTPServer   string
-	SMTPPort     int
+	SMTPPort     string
 	SMTPUsername string
 	SMTPPassword string
 	SenderEmail  string
@@ -55,7 +57,10 @@ func Read() {
 	}
 }
 
-type JWTConfig struct {
-	SecretKey       string
-	TokenExpiration int64
+//	type JWTConfig struct {
+//		SecretKey       string
+//		TokenExpiration int64
+//	}
+type TokenConfig struct {
+	Secret string
 }
