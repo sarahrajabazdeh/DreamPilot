@@ -12,5 +12,5 @@ run:
 build:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o go-app .	
 
-launch: build
-	bash ./scripts/start.sh 
+docker:
+
