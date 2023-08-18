@@ -7,6 +7,7 @@ import (
 
 // Set up user-related routes
 func SetupUserRoutes(r *chi.Mux, ctrl controller.ControllerInterface) *chi.Mux {
+	r.Post("/login", ctrl.Login)
 	r.Get("/getallusers", ctrl.GetAllUsers)
 	r.Post("/createuser", ctrl.CreateUser)
 	r.Delete("/deleteuser/{id}", ctrl.DeleteUser)

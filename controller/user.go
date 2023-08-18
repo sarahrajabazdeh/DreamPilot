@@ -13,12 +13,45 @@ import (
 )
 
 type UserInterface interface {
+	Login(w http.ResponseWriter, r *http.Request)
 	GetAllUsers(w http.ResponseWriter, r *http.Request)
 	DeleteUser(w http.ResponseWriter, r *http.Request)
 	UpdateUser(w http.ResponseWriter, r *http.Request)
 	CreateUser(w http.ResponseWriter, r *http.Request)
 	GetUserByID(w http.ResponseWriter, r *http.Request)
 	GetUserCompletedGoals(w http.ResponseWriter, r *http.Request)
+}
+
+func (ctrl *HttpController) Login(w http.ResponseWriter, r *http.Request) {
+	var loginReq dto.LoginRequest
+	err := json.NewDecoder(r.Body).Decode(&loginReq)
+	if err != nil {
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
+	tokenString := r.Header.Get("Authorization")
+
+	userID, err := ctrl.jwt.Authenticate(tokenString)
+
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	token, err := ctrl.jwt.Generate(userID)
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	response := map[string]interface{}{
+		"token": token,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(response)
 }
 
 func NoContentResponse(w http.ResponseWriter) {
