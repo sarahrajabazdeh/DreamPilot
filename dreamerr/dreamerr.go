@@ -1,6 +1,7 @@
 package dreamerr
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -8,7 +9,13 @@ import (
 	"os"
 	"runtime"
 
+	"github.com/sarahrajabazdeh/DreamPilot/dto"
 	"gorm.io/gorm"
+)
+
+const (
+	LogMessageErrorResponse   = "ERROR RESPONSE"   // Handled errors that could happen.
+	LogMessageUnexpectedError = "UNEXPECTED ERROR" // Panic errors that should never happen.
 )
 
 func ThrowError(err error) {
@@ -40,7 +47,8 @@ func (e DreamError) Status() int {
 }
 
 var ErrBadSyntax = &DreamError{message: "ERR_BAD_SYNTAX", status: http.StatusBadRequest}
-var ErrServerError = &DreamError{message: "ERR_INTERNAL_SERVER_ERROR", status: http.StatusInternalServerError}
+
+// var ErrServerError = &DreamError{message: "ERR_INTERNAL_SERVER_ERROR", status: http.StatusInternalServerError}
 var ErrDatabaseError = &DreamError{message: "ERR_INTERNAL_SERVER_ERROR_DATABASE", status: http.StatusInternalServerError}
 
 // ErrExpiredToken is raised when the request contains an expired jwt.
@@ -65,7 +73,7 @@ func PropagateError(err error, skips int) error {
 
 	appErr, ok := err.(*DreamError)
 	if !ok {
-		appErr = ErrServerError
+		appErr = ErrServerError()
 	}
 
 	pc, file, line, _ := runtime.Caller(skips)
@@ -103,4 +111,36 @@ func (e DreamError) PrintStackTrace() string {
 // LogErrorsResp logs an error response (no Internal Server Error) with the appropriate format.
 func LogErrorsResp(method string, url string, errorMsg string) {
 	log.Printf("%s[ERROR RESPONSE] %s %s %s %s\n", colorYellow, method, url, errorMsg, noColor)
+}
+
+// ErrMissingToken is raised when request does not contain a jwt for an API which requires authentication.
+func ErrMissingToken() *DreamError {
+	return &DreamError{
+		message: "ERR_MISSING_TOKEN",
+		status:  http.StatusUnauthorized,
+	}
+
+}
+
+// ErrInvalidToken is raised when the token contained in the request is not valid.
+func ErrInvalidToken() *DreamError {
+	return &DreamError{
+		message: "ERR_INVALID_TOKEN",
+		status:  http.StatusUnauthorized,
+	}
+}
+func ErrServerError() *DreamError {
+	return &DreamError{
+		message: "ERR_INTERNAL_SERVER_ERROR",
+		status:  http.StatusInternalServerError,
+	}
+}
+
+// MarhsalJSON marshals the error in json format
+func (e *DreamError) MarhsalJSON() []byte {
+	json, _ := json.Marshal(dto.Error{
+		Err: e.Error(),
+		Msg: e.message,
+	})
+	return json
 }

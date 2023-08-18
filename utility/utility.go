@@ -12,3 +12,7 @@ type UtilityInterface interface {
 
 type UtilityStruct struct {
 }
+
+const (
+	MimeTypeJSON = "application/json"
+)

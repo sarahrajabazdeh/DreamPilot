@@ -18,7 +18,7 @@ func main() {
 
 	config.Read()
 
-	jwtConfig := config.Config.JWTConfig
+	jwtConfig := config.Config.Token
 
 	db, err := db.NewPostgresDB()
 	if err != nil {
@@ -31,12 +31,6 @@ func main() {
 
 	r := chi.NewRouter()
 	r.Mount("/api", router.SetupRoutes(ctrl))
-
-	// r.Group(func(r chi.Router) {
-	// 	// These routes require JWT authentication
-	// 	r.Use(middleware.JWTMiddleware(jwtConfig))
-	// 	r.Get("/api/private", ctrl.PrivateHandler)
-	// })
 
 	err = http.ListenAndServe(":"+config.Config.Server.Port, cors.AllowAll().Handler(r))
 	if err != nil {

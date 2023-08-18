@@ -9,9 +9,9 @@ import (
 	"github.com/sarahrajabazdeh/DreamPilot/config"
 )
 
-type JWT struct{ jwtConfig config.JWTConfig }
+type JWT struct{ jwtConfig config.TokenConfig }
 
-func NewJWT(jwtConfig config.JWTConfig) *JWT {
+func NewJWT(jwtConfig config.TokenConfig) *JWT {
 	return &JWT{
 		jwtConfig: jwtConfig,
 	}
@@ -23,7 +23,7 @@ func (j *JWT) Generate(userID string) (string, error) {
 		"exp":     time.Now().Add(time.Hour * 24).Unix(),
 	})
 
-	tokenString, err := token.SignedString([]byte(j.jwtConfig.SecretKey))
+	tokenString, err := token.SignedString([]byte(j.jwtConfig.Secret))
 	if err != nil {
 		return "", err
 	}
@@ -39,7 +39,7 @@ func (j *JWT) Authenticate(tokenString string) (string, error) {
 		}
 
 		// Return the secret key used for signing the token
-		return []byte(j.jwtConfig.SecretKey), nil
+		return []byte(j.jwtConfig.Secret), nil
 	})
 
 	if err != nil {
