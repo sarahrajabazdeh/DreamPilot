@@ -1,9 +1,12 @@
 package db
 
 import (
+	"errors"
+
 	"github.com/gofrs/uuid"
 	"github.com/sarahrajabazdeh/DreamPilot/dto"
 	"github.com/sarahrajabazdeh/DreamPilot/model"
+	"gorm.io/gorm"
 )
 
 type UserDbInterface interface {
@@ -13,6 +16,7 @@ type UserDbInterface interface {
 	UpdateUser(id uuid.UUID, user model.User) error
 	CreateUser(user model.User) error
 	GetUserByID(id uuid.UUID) (model.User, error)
+	GetHashedPasswordByUsername(username string) (string, error)
 }
 
 func (p *PostgresDB) Login(username, password string) (dto.LoginRequest, error) {
@@ -47,4 +51,16 @@ func (p *PostgresDB) GetUserByID(id uuid.UUID) (model.User, error) {
 	var user model.User
 	err := p.Gorm.Where("id = ?", id).First(&user).Error
 	return user, handleError(err)
+}
+
+func (p *PostgresDB) GetHashedPasswordByUsername(username string) (string, error) {
+	var user model.User
+	if err := p.Gorm.Where("username = ?", username).First(&user).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return "", errors.New("User not found")
+		}
+		return "", err
+	}
+
+	return user.Password, nil
 }

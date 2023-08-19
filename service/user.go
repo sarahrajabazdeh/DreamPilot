@@ -13,6 +13,7 @@ type UserServiceInterface interface {
 	UpdateUser(id uuid.UUID, user model.User) error
 	CreateUser(user model.User) error
 	GetUserByID(id uuid.UUID) (model.User, error)
+	GetHashedPassword(username string) (string, error)
 }
 
 func (ds *service) Login(username, password string) (dto.LoginRequest, error) {
@@ -62,4 +63,12 @@ func (ds *service) GetUserByID(id uuid.UUID) (model.User, error) {
 		return model.User{}, handleError(err)
 	}
 	return user, nil
+}
+
+func (ds *service) GetHashedPassword(username string) (string, error) {
+	hashedPassword, err := ds.DB.GetHashedPasswordByUsername(username)
+	if err != nil {
+		return "", err
+	}
+	return hashedPassword, nil
 }

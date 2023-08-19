@@ -30,16 +30,23 @@ func (ctrl *HttpController) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	loginResp, err := ctrl.DS.Login(loginReq.Username, loginReq.Password)
-
+	// Retrieve hashed password from the data source based on the username
+	hashedPassword, err := ctrl.DS.GetHashedPassword(loginReq.Username)
 	if err != nil {
 		http.Error(w, "Login failed", http.StatusUnauthorized)
 		return
 	}
 
+	// Compare the provided password with the stored hashed password
+	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(loginReq.Password))
+	if err != nil {
+		http.Error(w, "Login failed", http.StatusUnauthorized)
+		return
+	}
+
+	// Login successful
 	response := map[string]interface{}{
 		"message": "Login successful",
-		"data":    loginResp,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -161,6 +168,7 @@ func (ctrl *HttpController) GetUserByID(w http.ResponseWriter, r *http.Request) 
 	encodeDataResponse(r, w, user, err)
 
 }
+
 func (ctrl *HttpController) GetUserCompletedGoals(w http.ResponseWriter, r *http.Request) {
 	tokenString := r.Header.Get("Authorization")
 	if tokenString == "" {
