@@ -2,15 +2,23 @@ package db
 
 import (
 	"github.com/gofrs/uuid"
+	"github.com/sarahrajabazdeh/DreamPilot/dto"
 	"github.com/sarahrajabazdeh/DreamPilot/model"
 )
 
 type UserDbInterface interface {
+	Login(username, password string) (dto.LoginRequest, error)
 	GetAllUsers() ([]model.User, error)
 	DeleteUser(id uuid.UUID) error
 	UpdateUser(id uuid.UUID, user model.User) error
 	CreateUser(user model.User) error
 	GetUserByID(id uuid.UUID) (model.User, error)
+}
+
+func (p *PostgresDB) Login(username, password string) (dto.LoginRequest, error) {
+	var user dto.LoginRequest
+	err := p.Gorm.Where("username = ? AND password = ?", username, password).First(&user).Error
+	return user, handleError(err)
 }
 
 func (p *PostgresDB) GetAllUsers() ([]model.User, error) {

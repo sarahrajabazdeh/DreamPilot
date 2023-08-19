@@ -30,23 +30,16 @@ func (ctrl *HttpController) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tokenString := r.Header.Get("Authorization")
-
-	userID, err := ctrl.jwt.Authenticate(tokenString)
+	loginResp, err := ctrl.DS.Login(loginReq.Username, loginReq.Password)
 
 	if err != nil {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
-
-	token, err := ctrl.jwt.Generate(userID)
-	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		http.Error(w, "Login failed", http.StatusUnauthorized)
 		return
 	}
 
 	response := map[string]interface{}{
-		"token": token,
+		"message": "Login successful",
+		"data":    loginResp,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -160,6 +153,7 @@ func (ctrl *HttpController) CreateUser(w http.ResponseWriter, r *http.Request) {
 	NoContentResponse(w)
 
 }
+
 func (ctrl *HttpController) GetUserByID(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, _ := uuid.FromString(idStr)
