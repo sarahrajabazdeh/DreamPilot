@@ -66,13 +66,13 @@ func NoContentResponse(w http.ResponseWriter) {
 // @Success 200 {array} model.User
 // @Router /api/getallusers [get]
 func (ctrl *HttpController) GetAllUsers(w http.ResponseWriter, r *http.Request) {
-	tokenString := r.Header.Get("Authorization")
+	// tokenString := r.Header.Get("Authorization")
 
-	_, err := ctrl.jwt.Authenticate(tokenString)
-	if err != nil {
-		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
-		return
-	}
+	// _, err := ctrl.jwt.Authenticate(tokenString)
+	// if err != nil {
+	// 	http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+	// 	return
+	// }
 
 	users, err := ctrl.DS.GetAllUsers()
 	if err != nil {
